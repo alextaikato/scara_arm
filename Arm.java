@@ -67,7 +67,7 @@ public class Arm
     // draws arm on the canvas
     public void draw()
     {
-        // draw arm
+        // draw arm.sqrt((dx1*dx1)+(dy1*dy1)) 
         int height = UI.getCanvasHeight();
         int width = UI.getCanvasWidth();
         // calculate joint positions
@@ -94,7 +94,7 @@ public class Arm
         UI.drawString(out_str, xm2+2*mr,ym2-mr/2+2*mr);
         out_str=String.format("xm2=%d",xm2);
         UI.drawString(out_str, xm2+2*mr,ym2-mr/2+3*mr);
-        out_str=String.format("ym2=%d",ym2);
+        out_str=String.format("ym2=%d",ym2);      
         UI.drawString(out_str, xm2+2*mr,ym2-mr/2+4*mr);
         // draw Field Of View
         UI.setColor(Color.GRAY);
@@ -112,6 +112,8 @@ public class Arm
             UI.drawLine(xj2,yj2,xt,yt);
             // draw tool
             double rt = 20;
+        double dy1 = yt - ym1;
+        // distance between pem a
             UI.drawOval(xt-rt/2,yt-rt/2,rt,rt);
         }
 
@@ -125,17 +127,17 @@ public class Arm
         double  xa =xj1+ (xj2-xj1)/2 ;
         double  ya =yj1+ (yj1-yj2)/2 ;
         // distance between joints
-        double d = math.sqrt(((xj2-xj1)^2)+((yj1-yj2)^2)) ;
+        double d = Math.sqrt(((xj2-xj1)*(xj2-xj1))+((yj1-yj2)*(yj1-yj2))) ;
         if (d<2*r){
             valid_state = true;
             // half distance between tool positions
-            double  h =math.sqrt((r^2)+((d/2)^2)) ;
-            double alpha=math.atan2((yj1-yj2), (xj2-xj1)) ;
+            double  h =Math.sqrt((r*r)+((d/2)*(d/2))) ;
+            double alpha=Math.atan2((yj1-yj2), (xj2-xj1)) ;
             // tool position
-            double xt = xa+(h*math.cos(alpha- (Math.PI/2)));
-            double yt = ya+(h*math.sin(alpha-(math.PI/2)));
-            double xt2 = xa-(h*math.cos(alpha- (Math.PI/2)));
-            double yt2 = ya-(h*math.sin(alpha-(math.PI/2)));
+            double xt = xa+(h*Math.cos(alpha- (Math.PI/2)));
+            double yt = ya+(h*Math.sin(alpha-(Math.PI/2)));        //double d1 = ;
+            double xt2 = xa-(h*Math.cos(alpha- (Math.PI/2)));
+            double yt2 = ya-(h*Math.sin(alpha-(Math.PI/2)));
         } else {
             valid_state = false;
         }
@@ -144,6 +146,7 @@ public class Arm
 
     // motor angles from tool position
     // updetes variables of the class
+    
     public void inverseKinematic(double xt_new,double yt_new){
 
         valid_state = true;
@@ -153,44 +156,43 @@ public class Arm
         double dx1 = xt - xm1; 
         double dy1 = yt - ym1;
         // distance between pem and motor
-        double d1 = ;
+        double d1 = Math.sqrt((dx1*dx1)+(dy1*dy1));
         if (d1>2*r){
-            //UI.println("Arm 1 - can not reach");
+            UI.println("Arm 1 - can not reach");
             valid_state = false;
             return;
         }
-
+        double theta1 = Math.asin(dy1/d1)+Math.acos(d1/2/r);
         double l1 = d1/2;
+        //double dy1 = yt - ym1;
+        // distance between pem a
         double h1 = Math.sqrt(r*r - d1*d1/4);
         // elbows positions
-        //xj1 = ...;
-        //yj1 = ...;
-
-        ///theta1 = ...;
-        if ((theta1>0)||(theta1<-Math.PI)){
+        double xj1 = xt - r*Math.sin((Math.acos((d1/2)/r)+Math.atan(dx1/dy1))); // check sign
+        double yj1 = yt - r*Math.cos((Math.acos((d1/2)/r)+Math.atan(dx1/dy1)));
+        if ((theta1>0)||(theta1<-Math.PI)){       // double d1 = ;
             valid_state = false;
-            //UI.println("Ange 1 -invalid");
+            UI.println("Angel 1 -invalid");
             return;
         }
 
         // theta12 = atan2(yj12 - ym1,xj12-xm1);
         double dx2 = xt - xm2; 
         double dy2 = yt - ym2;
-        double d2 = ...;
+        double d2 = Math.sqrt((dx2*dx2)+(dy2*dy2));
         if (d2>2*r){
-            // UI.println("Arm 2 - can not reach");
+            UI.println("Arm 2 - can not reach");
             valid_state = false;
             return;
         }
-
+        double theta2 = Math.PI - (Math.asin(dx2/d2)+Math.acos(d2/2/r));
         double l2 = d2/2;
 
         double h2 = Math.sqrt(r*r - d2*d2/4);
         // elbows positions
-        xj2 = ...;
-        yj2 = ...;
+        double xj2 = xm2 +r * Math.cos(theta2);
+        double yj2 = ym2 - r * Math.sin(theta2);
         // motor angles for both 1st elbow positions
-        theta2 = ...;
         if ((theta2>0)||(theta2<-Math.PI)){
             valid_state = false;
             //UI.println("Ange 2 -invalid");
