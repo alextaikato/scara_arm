@@ -135,7 +135,7 @@ public class Arm
             double alpha=Math.atan2((yj1-yj2), (xj2-xj1)) ;
             // tool position
             double xt = xa+(h*Math.cos(alpha- (Math.PI/2)));
-            double yt = ya+(h*Math.sin(alpha-(Math.PI/2)));        //double d1 = ;
+            double yt = ya+(h*Math.sin(alpha-(Math.PI/2)));       
             double xt2 = xa-(h*Math.cos(alpha- (Math.PI/2)));
             double yt2 = ya-(h*Math.sin(alpha-(Math.PI/2)));
         } else {
@@ -156,49 +156,56 @@ public class Arm
         double dx1 = xt - xm1; 
         double dy1 = yt - ym1;
         // distance between pem and motor
-        double d1 = Math.sqrt((dx1*dx1)+(dy1*dy1));
+        double d1 = Math.hypot(dx1,dy1);
         if (d1>2*r){
             UI.println("Arm 1 - can not reach");
             valid_state = false;
             return;
         }
-        double theta1 = Math.asin(dy1/d1)+Math.acos(d1/2/r);
+        
         double l1 = d1/2;
         //double dy1 = yt - ym1;
         // distance between pem a
         double h1 = Math.sqrt(r*r - d1*d1/4);
         // elbows positions
-        double xj1 = xt - r*Math.sin((Math.acos((d1/2)/r)+Math.atan(dx1/dy1))); // check sign
-        double yj1 = yt - r*Math.cos((Math.acos((d1/2)/r)+Math.atan(dx1/dy1)));
+        xj1 = xm1 + dx1/2 - h1*Math.cos(Math.PI/2+(Math.atan2(yt-ym1,xt-xm1))); // check sign
+        yj1 = ym1 + dy1/2 - h1*Math.sin(Math.PI/2+(Math.atan2(yt-ym1,xt-xm1)));
+        theta1 = Math.atan2(yj1-ym1,xj1-xm1);
+        
         if ((theta1>0)||(theta1<-Math.PI)){       // double d1 = ;
             valid_state = false;
             UI.println("Angel 1 -invalid");
             return;
         }
 
-        // theta12 = atan2(yj12 - ym1,xj12-xm1);
+        theta2 = Math.atan2(yj2 - ym1,xj2-xm1);
         double dx2 = xt - xm2; 
         double dy2 = yt - ym2;
-        double d2 = Math.sqrt((dx2*dx2)+(dy2*dy2));
+        double d2 = Math.hypot(dx2,dy2);
         if (d2>2*r){
             UI.println("Arm 2 - can not reach");
             valid_state = false;
             return;
         }
-        double theta2 = Math.PI - (Math.asin(dx2/d2)+Math.acos(d2/2/r));
-        double l2 = d2/2;
-
+        
+        //double l2 = d2/2;
+        double theta3= Math.atan((yt-ym2)/(xm2-xt));
         double h2 = Math.sqrt(r*r - d2*d2/4);
         // elbows positions
-        double xj2 = xm2 +r * Math.cos(theta2);
-        double yj2 = ym2 - r * Math.sin(theta2);
+        xj2 = xm2 + dx2/2-h2*Math.cos(Math.PI/2-theta3);
+        yj2 = ym2 + dy2/2-h2*Math.sin(Math.PI/2-theta3);
+        
+        theta2 = Math.atan2(yj2-ym2, xj2-xm2);
         // motor angles for both 1st elbow positions
         if ((theta2>0)||(theta2<-Math.PI)){
             valid_state = false;
             //UI.println("Ange 2 -invalid");
             return;
         }
-
+        if (Math.hypot(xj2-xj1, ){
+            valid_state= false;
+            return;
+        }
         //UI.printf("xt:%3.1f, yt:%3.1f\n",xt,yt);
         //UI.printf("theta1:%3.1f, theta2:%3.1f\n",theta1*180/Math.PI,theta2*180/Math.PI);
         return;

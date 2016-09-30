@@ -33,8 +33,11 @@ public class Main{
         UI.addButton("Enter path XY", this::enter_path_xy);
         UI.addButton("Save path XY", this::save_xy);
         UI.addButton("Load path XY", this::load_xy);
-        UI.addButton("Save path Ang", this::save_ang);
+        UI.addButton("Save path pwm", this::save_ang);
+        UI.addButton("Send to pi", this::sendToPi);
+        //UI.addButton("Save path pwm", this::save_pwm);
         UI.addButton("Load path Ang:Play", this::load_ang);
+        
                 
        // UI.addButton("Quit", UI::quit);
         UI.setMouseMotionListener(this::doMouse);
@@ -45,6 +48,7 @@ public class Main{
         
         this.arm = new Arm();
         this.drawing = new Drawing();
+        this.tool_path = new ToolPath();
         this.run();
         arm.draw();
     }
@@ -152,11 +156,23 @@ public class Main{
         tool_path.convert_drawing_to_angles(drawing,arm,fname);
     }
     
+    public void save_pwm(){
+        String fname = UIFileChooser.open();
+        tool_path.convert_angles_to_pwm(fname);
+    }
+    
     
     public void load_ang(){
         
     }
-    
+    public void sendToPi(){
+        try{
+            String fname = UIFileChooser.open();
+            Process p = Runtime.getRuntime().exec("scp -c /home/taikatalex/ENGR110/scara_arm/JavaCode/"+fname+ " pi@10.140.153.16:/home/pi/Arm/");
+            UI.println("Great success!");
+        }catch(Exception e){UI.println(e);}
+        
+    }
     public void run() {
         while(true) {
             arm.draw();
